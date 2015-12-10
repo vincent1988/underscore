@@ -11,17 +11,25 @@
   // Establish the root object, `window` (`self`) in the browser, `global`
   // on the server, or `this` in some virtual machines. We use `self`
   // instead of `window` for `WebWorker` support.
+  /**
+   * 基本设置
+   * 建立root对象 ，浏览器端  window (self),服务器端的 global，或者 虚拟机上的 this。
+   * 用self来代替window支持webworker.
+   */
   var root = typeof self == 'object' && self.self === self && self ||
             typeof global == 'object' && global.global === global && global ||
             this;
 
   // Save the previous value of the `_` variable.
+  // 保存 以前的值为 '_';
   var previousUnderscore = root._;
 
   // Save bytes in the minified (but not gzipped) version:
+  // 定义短变量，缩小字节流量
   var ArrayProto = Array.prototype, ObjProto = Object.prototype;
 
   // Create quick reference variables for speed access to core prototypes.
+  // 创建快速访问核心原型的变量
   var
     push = ArrayProto.push,
     slice = ArrayProto.slice,
@@ -30,16 +38,20 @@
 
   // All **ECMAScript 5** native function implementations that we hope to use
   // are declared here.
+  // 所有 EM5 原生方法在这里声明
   var
     nativeIsArray = Array.isArray,
-    nativeKeys = Object.keys,
+    nativeKeys = Object.keys,//用法：keys(obj)
     nativeCreate = Object.create;
 
   // Naked function reference for surrogate-prototype-swapping.
+  // 定义一个空函数，作为代理交换原型
   var Ctor = function(){};
 
   // Create a safe reference to the Underscore object for use below.
+  // 给Underscore创建‘_’的安全引用
   var _ = function(obj) {
+    // 如果obj是 _的实例  则_ = obj
     if (obj instanceof _) return obj;
     if (!(this instanceof _)) return new _(obj);
     this._wrapped = obj;
@@ -50,6 +62,8 @@
   // the browser, add `_` as a global object.
   // (`nodeType` is checked to ensure that `module`
   // and `exports` are not HTML elements.)
+
+  // 为node.js export Underscore 对象,支持向后兼容老的API，如果在浏览器中，将_声明为全局对象
   if (typeof exports != 'undefined' && !exports.nodeType) {
     if (typeof module != 'undefined' && !module.nodeType && module.exports) {
       exports = module.exports = _;
@@ -65,7 +79,17 @@
   // Internal function that returns an efficient (for current engines) version
   // of the passed-in callback, to be repeatedly applied in other Underscore
   // functions.
+
+  /**
+   * 内部方法：返回一个有效的（用于当前引擎）版本的回调，用于其他 underscore方法中
+   *
+   * TODO：
+   */
   var optimizeCb = function(func, context, argCount) {
+    //void 0 === undefined ，为什么不直接用undefined呢，undefined在js中兵部属于保留字/关键字，
+    // IE5.5-8可以将其当做变量那样对其赋值（IE9+及其他现代浏览器中赋值给undefined将无效）
+    // 于是采用void方式获取undefined则成了通用准则
+    //  http://www.cnblogs.com/fsjohnhuang/p/4146506.html
     if (context === void 0) return func;
     switch (argCount == null ? 3 : argCount) {
       case 1: return function(value) {
@@ -88,6 +112,8 @@
   // An internal function to generate callbacks that can be applied to each
   // element in a collection, returning the desired result — either `identity`,
   // an arbitrary callback, a property matcher, or a property accessor.
+
+  // 内部函数：产生回调 可以应用到集合对象的每个元素，返回一个想要的结果 identity,任意一个回调，一个属性或者属性访问器。
   var cb = function(value, context, argCount) {
     if (value == null) return _.identity;
     if (_.isFunction(value)) return optimizeCb(value, context, argCount);
@@ -96,12 +122,22 @@
   };
 
   // An external wrapper for the internal callback generator
+
+  // 将cb 内部函数包装为 外部函数
   _.iteratee = function(value, context) {
+    // Infinity 属性表示存放表正无穷大的数值
     return cb(value, context, Infinity);
   };
 
   // Similar to ES6's rest param (http://ariya.ofilabs.com/2013/03/es6-and-rest-parameter.html)
   // This accumulates the arguments passed into an array, after a given index.
+
+  /**
+   * 将积累的参数传到一个数组中的一个给定的数组,若索引为null,则默认存在最后
+   * @param func
+   * @param startIndex
+   * @returns {Function}
+   */
   var restArgs = function(func, startIndex) {
     startIndex = startIndex == null ? func.length - 1 : +startIndex;
     return function() {
@@ -125,15 +161,28 @@
   };
 
   // An internal function for creating a new object that inherits from another.
+
+  /**
+   * 内部方法：创建继承于其他对象的对象
+   * @param prototype
+   * @returns {*}
+   */
   var baseCreate = function(prototype) {
     if (!_.isObject(prototype)) return {};
+    //如果支持 EM5 Object.create则直接调用来创建
     if (nativeCreate) return nativeCreate(prototype);
+    //代理虚拟对象
     Ctor.prototype = prototype;
     var result = new Ctor;
+    //还原Ctor
     Ctor.prototype = null;
     return result;
   };
-
+  /**
+   * 获取目标对象的某个key的值
+   * @param key
+   * @returns {Function}
+   */
   var property = function(key) {
     return function(obj) {
       return obj == null ? void 0 : obj[key];
@@ -144,6 +193,11 @@
   // should be iterated as an array or as an object.
   // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
   // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
+
+  /**
+   *
+   * @type {number}
+   */
   var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
   var getLength = property('length');
   var isArrayLike = function(collection) {
@@ -174,6 +228,7 @@
   };
 
   // Return the results of applying the iteratee to each element.
+
   _.map = _.collect = function(obj, iteratee, context) {
     iteratee = cb(iteratee, context);
     var keys = !isArrayLike(obj) && _.keys(obj),
@@ -187,6 +242,7 @@
   };
 
   // Create a reducing function iterating left or right.
+  // 创建一个还原函数迭代左或右
   var createReduce = function(dir) {
     // Wrap code that reassigns argument variables in a separate function than
     // the one that accesses `arguments.length` to avoid a perf hit. (#1191)
