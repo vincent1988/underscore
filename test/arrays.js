@@ -6,85 +6,82 @@
   test('first', function(assert) {
     assert.equal(_.first([1, 2, 3]), 1, 'can pull out the first element of an array');
     assert.equal(_([1, 2, 3]).first(), 1, 'can perform OO-style "first()"');
-    assert.deepEqual(_.first([1, 2, 3], 0), [], 'can pass an index to first');
-    assert.deepEqual(_.first([1, 2, 3], 2), [1, 2], 'can pass an index to first');
-    assert.deepEqual(_.first([1, 2, 3], 5), [1, 2, 3], 'can pass an index to first');
+    assert.deepEqual(_.first([1, 2, 3], 0), [], 'returns an empty array when n <= 0 (0 case)');
+    assert.deepEqual(_.first([1, 2, 3], -1), [], 'returns an empty array when n <= 0 (negative case)');
+    assert.deepEqual(_.first([1, 2, 3], 2), [1, 2], 'can fetch the first n elements');
+    assert.deepEqual(_.first([1, 2, 3], 5), [1, 2, 3], 'returns the whole array if n > length');
     var result = (function(){ return _.first(arguments); }(4, 3, 2, 1));
-    assert.equal(result, 4, 'works on an arguments object.');
+    assert.equal(result, 4, 'works on an arguments object');
     result = _.map([[1, 2, 3], [1, 2, 3]], _.first);
     assert.deepEqual(result, [1, 1], 'works well with _.map');
-    result = (function() { return _.first([1, 2, 3], 2); }());
-    assert.deepEqual(result, [1, 2]);
-
-    assert.equal(_.first(null), void 0, 'handles nulls');
-    assert.strictEqual(_.first([1, 2, 3], -1).length, 0);
+    assert.equal(_.first(null), void 0, 'returns undefined when called on null');
   });
 
   test('head', function(assert) {
-    assert.strictEqual(_.first, _.head, 'alias for first');
+    assert.strictEqual(_.head, _.first, 'is an alias for first');
   });
 
   test('take', function(assert) {
-    assert.strictEqual(_.first, _.take, 'alias for first');
+    assert.strictEqual(_.take, _.first, 'is an alias for first');
   });
 
   test('rest', function(assert) {
     var numbers = [1, 2, 3, 4];
-    assert.deepEqual(_.rest(numbers), [2, 3, 4], 'working rest()');
-    assert.deepEqual(_.rest(numbers, 0), [1, 2, 3, 4], 'working rest(0)');
-    assert.deepEqual(_.rest(numbers, 2), [3, 4], 'rest can take an index');
+    assert.deepEqual(_.rest(numbers), [2, 3, 4], 'fetches all but the first element');
+    assert.deepEqual(_.rest(numbers, 0), [1, 2, 3, 4], 'returns the whole array when index is 0');
+    assert.deepEqual(_.rest(numbers, 2), [3, 4], 'returns elements starting at the given index');
     var result = (function(){ return _(arguments).rest(); }(1, 2, 3, 4));
-    assert.deepEqual(result, [2, 3, 4], 'works on arguments object');
+    assert.deepEqual(result, [2, 3, 4], 'works on an arguments object');
     result = _.map([[1, 2, 3], [1, 2, 3]], _.rest);
     assert.deepEqual(_.flatten(result), [2, 3, 2, 3], 'works well with _.map');
-    result = (function(){ return _(arguments).rest(); }(1, 2, 3, 4));
-    assert.deepEqual(result, [2, 3, 4], 'works on arguments object');
   });
 
   test('tail', function(assert) {
-    assert.strictEqual(_.rest, _.tail, 'alias for rest');
+    assert.strictEqual(_.tail, _.rest, 'is an alias for rest');
   });
 
   test('drop', function(assert) {
-    assert.strictEqual(_.rest, _.drop, 'alias for rest');
+    assert.strictEqual(_.drop, _.rest, 'is an alias for rest');
   });
 
   test('initial', function(assert) {
-    assert.deepEqual(_.initial([1, 2, 3, 4, 5]), [1, 2, 3, 4], 'working initial()');
-    assert.deepEqual(_.initial([1, 2, 3, 4], 2), [1, 2], 'initial can take an index');
-    assert.deepEqual(_.initial([1, 2, 3, 4], 6), [], 'initial can take a large index');
+    assert.deepEqual(_.initial([1, 2, 3, 4, 5]), [1, 2, 3, 4], 'returns all but the last element');
+    assert.deepEqual(_.initial([1, 2, 3, 4], 2), [1, 2], 'returns all but the last n elements');
+    assert.deepEqual(_.initial([1, 2, 3, 4], 6), [], 'returns an empty array when n > length');
     var result = (function(){ return _(arguments).initial(); }(1, 2, 3, 4));
-    assert.deepEqual(result, [1, 2, 3], 'initial works on arguments object');
+    assert.deepEqual(result, [1, 2, 3], 'works on an arguments object');
     result = _.map([[1, 2, 3], [1, 2, 3]], _.initial);
-    assert.deepEqual(_.flatten(result), [1, 2, 1, 2], 'initial works with _.map');
+    assert.deepEqual(_.flatten(result), [1, 2, 1, 2], 'works well with _.map');
   });
 
   test('last', function(assert) {
     assert.equal(_.last([1, 2, 3]), 3, 'can pull out the last element of an array');
-    assert.deepEqual(_.last([1, 2, 3], 0), [], 'can pass an index to last');
-    assert.deepEqual(_.last([1, 2, 3], 2), [2, 3], 'can pass an index to last');
-    assert.deepEqual(_.last([1, 2, 3], 5), [1, 2, 3], 'can pass an index to last');
+    assert.equal(_([1, 2, 3]).last(), 3, 'can perform OO-style "last()"');
+    assert.deepEqual(_.last([1, 2, 3], 0), [], 'returns an empty array when n <= 0 (0 case)');
+    assert.deepEqual(_.last([1, 2, 3], -1), [], 'returns an empty array when n <= 0 (negative case)');
+    assert.deepEqual(_.last([1, 2, 3], 2), [2, 3], 'can fetch the last n elements');
+    assert.deepEqual(_.last([1, 2, 3], 5), [1, 2, 3], 'returns the whole array if n > length');
     var result = (function(){ return _(arguments).last(); }(1, 2, 3, 4));
     assert.equal(result, 4, 'works on an arguments object');
     result = _.map([[1, 2, 3], [1, 2, 3]], _.last);
     assert.deepEqual(result, [3, 3], 'works well with _.map');
-
-    assert.equal(_.last(null), void 0, 'handles nulls');
-    assert.strictEqual(_.last([1, 2, 3], -1).length, 0);
+    assert.equal(_.last(null), void 0, 'returns undefined when called on null');
   });
 
   test('compact', function(assert) {
-    assert.equal(_.compact([0, 1, false, 2, false, 3]).length, 3, 'can trim out all falsy values');
-    var result = (function(){ return _.compact(arguments).length; }(0, 1, false, 2, false, 3));
-    assert.equal(result, 3, 'works on an arguments object');
+    assert.deepEqual(_.compact([1, false, null, 0, '', void 0, NaN, 2]), [1, 2], 'removes all falsy values');
+    var result = (function(){ return _.compact(arguments); }(0, 1, false, 2, false, 3));
+    assert.deepEqual(result, [1, 2, 3], 'works on an arguments object');
+    result = _.map([[1, false, false], [false, false, 3]], _.compact);
+    assert.deepEqual(result, [[1], [3]], 'works well with _.map');
   });
 
   test('flatten', function(assert) {
-    assert.deepEqual(_.flatten(null), [], 'Flattens supports null');
-    assert.deepEqual(_.flatten(void 0), [], 'Flattens supports undefined');
+    assert.deepEqual(_.flatten(null), [], 'supports null');
+    assert.deepEqual(_.flatten(void 0), [], 'supports undefined');
 
-    assert.deepEqual(_.flatten([[], [[]], []]), [], 'Flattens empty arrays');
-    assert.deepEqual(_.flatten([[], [[]], []], true), [[]], 'Flattens empty arrays');
+    assert.deepEqual(_.flatten([[], [[]], []]), [], 'supports empty arrays');
+    assert.deepEqual(_.flatten([[], [[]], []], true), [[]], 'can shallowly flatten empty arrays');
 
     var list = [1, [2], [3, [[[4]]]]];
     assert.deepEqual(_.flatten(list), [1, 2, 3, 4], 'can flatten nested arrays');
@@ -94,52 +91,53 @@
     list = [[1], [2], [3], [[4]]];
     assert.deepEqual(_.flatten(list, true), [1, 2, 3, [4]], 'can shallowly flatten arrays containing only other arrays');
 
-    assert.equal(_.flatten([_.range(10), _.range(10), 5, 1, 3], true).length, 23);
-    assert.equal(_.flatten([_.range(10), _.range(10), 5, 1, 3]).length, 23);
-    assert.equal(_.flatten([new Array(1000000), _.range(56000), 5, 1, 3]).length, 1056003, 'Flatten can handle massive collections');
-    assert.equal(_.flatten([new Array(1000000), _.range(56000), 5, 1, 3], true).length, 1056003, 'Flatten can handle massive collections');
+    assert.equal(_.flatten([_.range(10), _.range(10), 5, 1, 3], true).length, 23, 'can flatten medium length arrays');
+    assert.equal(_.flatten([_.range(10), _.range(10), 5, 1, 3]).length, 23, 'can shallowly flatten medium length arrays');
+    assert.equal(_.flatten([new Array(1000000), _.range(56000), 5, 1, 3]).length, 1056003, 'can handle massive arrays');
+    assert.equal(_.flatten([new Array(1000000), _.range(56000), 5, 1, 3], true).length, 1056003, 'can handle massive arrays in shallow mode');
 
     var x = _.range(100000);
     for (var i = 0; i < 1000; i++) x = [x];
-    assert.deepEqual(_.flatten(x), _.range(100000), 'Flatten can handle very deep arrays');
-    assert.deepEqual(_.flatten(x, true), x[0], 'Flatten can handle very deep arrays with shallow');
+    assert.deepEqual(_.flatten(x), _.range(100000), 'can handle very deep arrays');
+    assert.deepEqual(_.flatten(x, true), x[0], 'can handle very deep arrays in shallow mode');
   });
 
   test('without', function(assert) {
     var list = [1, 2, 1, 0, 3, 1, 4];
-    assert.deepEqual(_.without(list, 0, 1), [2, 3, 4], 'can remove all instances of an object');
+    assert.deepEqual(_.without(list, 0, 1), [2, 3, 4], 'removes all instances of the given values');
     var result = (function(){ return _.without(arguments, 0, 1); }(1, 2, 1, 0, 3, 1, 4));
     assert.deepEqual(result, [2, 3, 4], 'works on an arguments object');
 
     list = [{one: 1}, {two: 2}];
-    assert.equal(_.without(list, {one: 1}).length, 2, 'uses real object identity for comparisons.');
-    assert.equal(_.without(list, list[0]).length, 1, 'ditto.');
+    assert.deepEqual(_.without(list, {one: 1}), list, 'compares objects by reference (value case)');
+    assert.deepEqual(_.without(list, list[0]), [{two: 2}], 'compares objects by reference (reference case)');
   });
 
   test('sortedIndex', function(assert) {
-    var numbers = [10, 20, 30, 40, 50], num = 35;
-    var indexForNum = _.sortedIndex(numbers, num);
-    assert.equal(indexForNum, 3, '35 should be inserted at index 3');
-
+    var numbers = [10, 20, 30, 40, 50];
+    var indexFor35 = _.sortedIndex(numbers, 35);
+    assert.equal(indexFor35, 3, 'finds the index at which a value should be inserted to retain order');
     var indexFor30 = _.sortedIndex(numbers, 30);
-    assert.equal(indexFor30, 2, '30 should be inserted at index 2');
+    assert.equal(indexFor30, 2, 'finds the smallest index at which a value could be inserted to retain order');
 
     var objects = [{x: 10}, {x: 20}, {x: 30}, {x: 40}];
     var iterator = function(obj){ return obj.x; };
-    assert.strictEqual(_.sortedIndex(objects, {x: 25}, iterator), 2);
-    assert.strictEqual(_.sortedIndex(objects, {x: 35}, 'x'), 3);
+    assert.strictEqual(_.sortedIndex(objects, {x: 25}, iterator), 2, 'uses the result of `iterator` for order comparisons');
+    assert.strictEqual(_.sortedIndex(objects, {x: 35}, 'x'), 3, 'when `iterator` is a string, uses that key for order comparisons');
 
     var context = {1: 2, 2: 3, 3: 4};
     iterator = function(obj){ return this[obj]; };
-    assert.strictEqual(_.sortedIndex([1, 3], 2, iterator, context), 1);
+    assert.strictEqual(_.sortedIndex([1, 3], 2, iterator, context), 1, 'can execute its iterator in the given context');
 
-    var values = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535, 131071, 262143, 524287, 1048575, 2097151, 4194303, 8388607, 16777215, 33554431, 67108863, 134217727, 268435455, 536870911, 1073741823, 2147483647];
-    var array = Array(Math.pow(2, 32) - 1);
+    var values = [0, 1, 3, 7, 15, 31, 63, 127, 255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535, 131071, 262143, 524287,
+        1048575, 2097151, 4194303, 8388607, 16777215, 33554431, 67108863, 134217727, 268435455, 536870911, 1073741823, 2147483647];
+    var largeArray = Array(Math.pow(2, 32) - 1);
     var length = values.length;
+    // Sparsely populate `array`
     while (length--) {
-      array[values[length]] = values[length];
+      largeArray[values[length]] = values[length];
     }
-    assert.equal(_.sortedIndex(array, 2147483648), 2147483648, 'should work with large indexes');
+    assert.equal(_.sortedIndex(largeArray, 2147483648), 2147483648, 'works with large indexes');
   });
 
   test('uniq', function(assert) {
@@ -195,7 +193,7 @@
   });
 
   test('unique', function(assert) {
-    assert.strictEqual(_.uniq, _.unique, 'alias for uniq');
+    assert.strictEqual(_.unique, _.uniq, 'is an alias for uniq');
   });
 
   test('intersection', function(assert) {
@@ -254,7 +252,7 @@
     var stooges = _.zip(['moe', 30, 'stooge 1'], ['larry', 40, 'stooge 2'], ['curly', 50, 'stooge 3']);
     assert.deepEqual(stooges, [['moe', 'larry', 'curly'], [30, 40, 50], ['stooge 1', 'stooge 2', 'stooge 3']], 'zipped pairs');
 
-    // In the case of difference lengths of the tuples undefineds
+    // In the case of different lengths of the tuples, undefined values
     // should be used as placeholder
     stooges = _.zip(['moe', 30], ['larry', 40], ['curly', 50, 'extra data']);
     assert.deepEqual(stooges, [['moe', 'larry', 'curly'], [30, 40, 50], [void 0, void 0, 'extra data']], 'zipped pairs with empties');
@@ -532,11 +530,13 @@
     assert.deepEqual(_.range(0), [], 'range with 0 as a first argument generates an empty array');
     assert.deepEqual(_.range(4), [0, 1, 2, 3], 'range with a single positive argument generates an array of elements 0,1,2,...,n-1');
     assert.deepEqual(_.range(5, 8), [5, 6, 7], 'range with two arguments a &amp; b, a&lt;b generates an array of elements a,a+1,a+2,...,b-2,b-1');
-    assert.deepEqual(_.range(8, 5), [], 'range with two arguments a &amp; b, b&lt;a generates an empty array');
     assert.deepEqual(_.range(3, 10, 3), [3, 6, 9], 'range with three arguments a &amp; b &amp; c, c &lt; b-a, a &lt; b generates an array of elements a,a+c,a+2c,...,b - (multiplier of a) &lt; c');
     assert.deepEqual(_.range(3, 10, 15), [3], 'range with three arguments a &amp; b &amp; c, c &gt; b-a, a &lt; b generates an array with a single element, equal to a');
     assert.deepEqual(_.range(12, 7, -2), [12, 10, 8], 'range with three arguments a &amp; b &amp; c, a &gt; b, c &lt; 0 generates an array of elements a,a-c,a-2c and ends with the number not less than b');
     assert.deepEqual(_.range(0, -10, -1), [0, -1, -2, -3, -4, -5, -6, -7, -8, -9], 'final example in the Python docs');
+    assert.strictEqual(1 / _.range(-0, 1)[0], -Infinity, 'should preserve -0');
+    assert.deepEqual(_.range(8, 5), [8, 7, 6], 'negative range generates descending array');
+    assert.deepEqual(_.range(-3), [0, -1, -2], 'negative range generates descending array');
   });
 
   test('chunk', function(assert) {

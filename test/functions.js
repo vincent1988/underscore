@@ -395,6 +395,30 @@
     }, 100);
   });
 
+  asyncTest('throttle cleared', function(assert) {
+    var counter = 0;
+    var incr = function(){ counter++; };
+    var throttledIncr = _.throttle(incr, 32);
+    throttledIncr();
+    throttledIncr.clear();
+    throttledIncr();
+    throttledIncr();
+
+    assert.equal(counter, 2, 'incr was called immediately');
+    _.delay(function(){ assert.equal(counter, 3, 'incr was throttled'); start(); }, 64);
+  });
+
+  asyncTest('throttle cleared with leading: false', function(assert) {
+    var counter = 0;
+    var incr = function(){ counter++; };
+    var throttledIncr = _.throttle(incr, 32, {leading: false});
+    throttledIncr();
+    throttledIncr.clear();
+
+    assert.equal(counter, 0, 'incr was throttled');
+    _.delay(function(){ assert.equal(counter, 0, 'incr was throttled'); start(); }, 64);
+  });
+
   asyncTest('debounce', 1, function(assert) {
     var counter = 0;
     var incr = function(){ counter++; };
@@ -402,6 +426,15 @@
     debouncedIncr(); debouncedIncr();
     _.delay(debouncedIncr, 16);
     _.delay(function(){ assert.equal(counter, 1, 'incr was debounced'); start(); }, 96);
+  });
+
+  asyncTest('debounce cleared', 1, function(assert) {
+    var counter = 0;
+    var incr = function(){ counter++; };
+    var debouncedIncr = _.debounce(incr, 32);
+    debouncedIncr();
+    debouncedIncr.clear();
+    _.delay(function(){ assert.equal(counter, 0, 'incr was not called'); start(); }, 96);
   });
 
   asyncTest('debounce asap', 4, function(assert) {
@@ -418,6 +451,23 @@
     _.delay(debouncedIncr, 32);
     _.delay(debouncedIncr, 48);
     _.delay(function(){ assert.equal(counter, 1, 'incr was debounced'); start(); }, 128);
+  });
+
+  asyncTest('debounce asap cleared', 4, function(assert) {
+    var a, b;
+    var counter = 0;
+    var incr = function(){ return ++counter; };
+    var debouncedIncr = _.debounce(incr, 64, true);
+    a = debouncedIncr();
+    debouncedIncr.clear();
+    b = debouncedIncr();
+    assert.equal(a, 1);
+    assert.equal(b, 2);
+    assert.equal(counter, 2, 'incr was called immediately');
+    _.delay(debouncedIncr, 16);
+    _.delay(debouncedIncr, 32);
+    _.delay(debouncedIncr, 48);
+    _.delay(function(){ assert.equal(counter, 2, 'incr was debounced'); start(); }, 128);
   });
 
   asyncTest('debounce asap recursively', 2, function(assert) {

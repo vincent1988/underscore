@@ -85,9 +85,9 @@
     };
   };
 
-  // A mostly-internal function to generate callbacks that can be applied
-  // to each element in a collection, returning the desired result — either
-  // `identity`, an arbitrary callback, a property matcher, or a property accessor.
+  // An internal function to generate callbacks that can be applied to each
+  // element in a collection, returning the desired result — either `identity`,
+  // an arbitrary callback, a property matcher, or a property accessor.
   var cb = function(value, context, argCount) {
     if (value == null) return _.identity;
     if (_.isFunction(value)) return optimizeCb(value, context, argCount);
@@ -95,6 +95,7 @@
     return _.property(value);
   };
 
+  // An external wrapper for the internal callback generator
   _.iteratee = function(value, context) {
     return cb(value, context, Infinity);
   };
@@ -187,8 +188,8 @@
 
   // Create a reducing function iterating left or right.
   var createReduce = function(dir) {
-    // Optimized iterator function as using arguments.length
-    // in the main function will deoptimize the, see #1991.
+    // Wrap code that reassigns argument variables in a separate function than
+    // the one that accesses `arguments.length` to avoid a perf hit. (#1191)
     var reducer = function(obj, iteratee, memo, initial) {
       var keys = !isArrayLike(obj) && _.keys(obj),
           length = (keys || obj).length,
@@ -441,7 +442,7 @@
     if (_.isArray(obj)) return slice.call(obj);
     if (_.isString(obj)) {
       // Keep surrogate pair characters together
-      return obj ? obj.match(reStrSymbol) : [];
+      return obj.match(reStrSymbol);
     }
     if (isArrayLike(obj)) return _.map(obj, _.identity);
     return _.values(obj);
@@ -693,7 +694,9 @@
       stop = start || 0;
       start = 0;
     }
-    step = step || 1;
+    if (!step) {
+      step = stop < start ? -1 : 1;
+    }
 
     var length = Math.max(Math.ceil((stop - start) / step), 0);
     var range = Array(length);
@@ -790,7 +793,7 @@
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   _.delay = restArgs(function(func, wait, args) {
-    return setTimeout(function(){
+    return setTimeout(function() {
       return func.apply(null, args);
     }, wait);
   });
@@ -805,17 +808,18 @@
   // but if you'd like to disable the execution on the leading edge, pass
   // `{leading: false}`. To disable execution on the trailing edge, ditto.
   _.throttle = function(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
+    var timeout, context, args, result;
     var previous = 0;
     if (!options) options = {};
+
     var later = function() {
       previous = options.leading === false ? 0 : _.now();
       timeout = null;
       result = func.apply(context, args);
       if (!timeout) context = args = null;
     };
-    return function() {
+
+    var throttled = function() {
       var now = _.now();
       if (!previous && options.leading === false) previous = now;
       var remaining = wait - (now - previous);
@@ -834,6 +838,14 @@
       }
       return result;
     };
+
+    throttled.clear = function() {
+      clearTimeout(timeout);
+      previous = 0;
+      timeout = context = args = null;
+    };
+
+    return throttled;
   };
 
   // Returns a function, that, as long as it continues to be invoked, will not
@@ -841,35 +853,32 @@
   // N milliseconds. If `immediate` is passed, trigger the function on the
   // leading edge, instead of the trailing.
   _.debounce = function(func, wait, immediate) {
-    var timeout, args, context, timestamp, result;
+    var timeout, result;
 
-    var later = function() {
-      var last = _.now() - timestamp;
-
-      if (last < wait && last >= 0) {
-        timeout = setTimeout(later, wait - last);
-      } else {
-        timeout = null;
-        if (!immediate) {
-          result = func.apply(context, args);
-          if (!timeout) context = args = null;
-        }
-      }
+    var later = function(context, args) {
+      timeout = null;
+      if (args) result = func.apply(context, args);
     };
 
-    return function() {
-      context = this;
-      args = arguments;
-      timestamp = _.now();
+    var debounced = restArgs(function(args) {
       var callNow = immediate && !timeout;
-      if (!timeout) timeout = setTimeout(later, wait);
+      if (timeout) clearTimeout(timeout);
       if (callNow) {
-        result = func.apply(context, args);
-        context = args = null;
+        timeout = setTimeout(later, wait);
+        result = func.apply(this, args);
+      } else if (!immediate) {
+        timeout = _.delay(later, wait, this, args);
       }
 
       return result;
+    });
+
+    debounced.clear = function() {
+      clearTimeout(timeout);
+      timeout = null;
     };
+
+    return debounced;
   };
 
   // Returns the first function passed as an argument to the second,
