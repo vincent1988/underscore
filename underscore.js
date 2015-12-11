@@ -21,7 +21,7 @@
             this;
 
   // Save the previous value of the `_` variable.
-  // 保存 以前的值为 '_';
+  // 保存 以前的值为 '_',如果出现命名冲突或者考虑规范，可以通过_.noConflict()方法恢复"_"被Underscore占用之前的值。
   var previousUnderscore = root._;
 
   // Save bytes in the minified (but not gzipped) version:
@@ -297,12 +297,14 @@
   };
 
   // Return all the elements for which a truth test fails.
+  // 排除
   _.reject = function(obj, predicate, context) {
     return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
   // Determine whether all of the elements match a truth test.
   // Aliased as `all`.
+  // 是否都符合规则
   _.every = _.all = function(obj, predicate, context) {
     predicate = cb(predicate, context);
     var keys = !isArrayLike(obj) && _.keys(obj),
@@ -412,6 +414,7 @@
   };
 
   // Shuffle a collection.
+  // 打乱一个集合对象
   _.shuffle = function(obj) {
     return _.sample(obj, Infinity);
   };
@@ -420,6 +423,7 @@
   // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
   // If **n** is not specified, returns a single random element.
   // The internal `guard` argument allows it to work with `map`.
+  // 随机得到集合中的 n 个值
   _.sample = function(obj, n, guard) {
     if (n == null || guard) {
       if (!isArrayLike(obj)) obj = _.values(obj);
@@ -439,6 +443,7 @@
   };
 
   // Sort the object's values by a criterion produced by an iteratee.
+  // 按 iteratee 排序
   _.sortBy = function(obj, iteratee, context) {
     var index = 0;
     iteratee = cb(iteratee, context);
@@ -460,6 +465,7 @@
   };
 
   // An internal function used for aggregate "group by" operations.
+  //
   var group = function(behavior, partition) {
     return function(obj, iteratee, context) {
       var result = partition ? [[], []] : {};
